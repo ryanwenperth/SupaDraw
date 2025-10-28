@@ -42,17 +42,23 @@ export default function SignUp() {
 
   async function onSubmit(values: z.infer<typeof signUpSchema>) {
     setIsLoading(true);
-    const data = await signUp(values.name, values.email, values.password);
+    const data = await signUp(
+      values.name,
+      values.email,
+      values.password,
+      values.role,
+    );
 
     if (data.data.session) {
       setIsLoading(false);
       navigate({ to: "/pages" });
       toast("Signed Up!");
-    }
-
-    if (data.error) {
+    } else if (data.error) {
       setIsLoading(false);
-      toast("An error occured", { description: data.error.message });
+      toast("An error occured ryan", { description: data.error.message });
+      //navigate({ to: "/pages" });
+    } else {
+      toast("comfirmation email sent! Please check your email");
     }
   }
 
@@ -117,6 +123,29 @@ export default function SignUp() {
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <HiddenInput id="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid gap-2">
+                      <FormLabel>Role</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        >
+                          <option value="viewer">Viewer (View only)</option>
+                          <option value="writer">
+                            Writer (Can create and edit)
+                          </option>
+                        </select>
                       </FormControl>
                       <FormMessage />
                     </div>

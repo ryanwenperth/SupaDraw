@@ -12,11 +12,17 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Excalidraw, WelcomeScreen } from "@excalidraw/excalidraw";
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
-import { ExcalidrawImperativeAPI, BinaryFiles } from "@excalidraw/excalidraw/types";
+import {
+  ExcalidrawImperativeAPI,
+  BinaryFiles,
+} from "@excalidraw/excalidraw/types";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 import { getDrawData, setDrawData } from "@/db/draw";
 import { drawDataStore } from "@/stores/drawDataStore";
+
+import { ShareDialog } from "@/components/ShareDialog";
+import { getLocalUser } from "@/db/auth";
 
 type PageProps = {
   id: string;
@@ -58,17 +64,17 @@ export default function Page({ id }: PageProps) {
       const pageData = data.data[0].page_elements;
       const elements = pageData.elements || [];
       const files = pageData.files || {};
-      
+
       excalidrawAPI.updateScene({
         elements: elements,
         appState: { theme: theme },
       });
-      
+
       // Update files if they exist
       if (Object.keys(files).length > 0) {
         excalidrawAPI.addFiles(Object.values(files));
       }
-      
+
       setName(data.data[0].name);
     }
     if (data?.error) {
@@ -84,8 +90,10 @@ export default function Page({ id }: PageProps) {
 
       const existingData = drawDataStore.getState().getPageData(id);
 
-      if (JSON.stringify(existingData?.elements) !== JSON.stringify(scene) ||
-          JSON.stringify(existingData?.files) !== JSON.stringify(files)) {
+      if (
+        JSON.stringify(existingData?.elements) !== JSON.stringify(scene) ||
+        JSON.stringify(existingData?.files) !== JSON.stringify(files)
+      ) {
         setIsSaving(true);
         // Save locally first
         drawDataStore.getState().setPageData(id, scene, updatedAt, name, files);
@@ -130,15 +138,25 @@ export default function Page({ id }: PageProps) {
         elements: localData.elements,
         appState: { theme: theme },
       });
-      
+
       // Load files if they exist
       if (localData.files && Object.keys(localData.files).length > 0) {
         excalidrawAPI.addFiles(Object.values(localData.files));
       }
-      
+
       setName(localData.name);
     }
   }, [id, excalidrawAPI, theme]);
+
+  // Add query to get current user
+  const { data: userSession } = useQuery({
+    queryKey: ["user-session"],
+    queryFn: () => getLocalUser(),
+  });
+
+  // Check if current user owns this page
+  const isOwner =
+    data?.data?.[0]?.user_id === userSession?.data.session?.user?.id;
 
   return (
     <div className="flex w-full flex-col">
@@ -151,7 +169,9 @@ export default function Page({ id }: PageProps) {
             initialData={{ appState: { theme: theme } }}
             renderTopRightUI={() => (
               <div className="flex gap-2">
-                <Input
+                <ShareDialog pageId={id} isOwner={isOwner} />
+
+                {/* <Input
                   onChange={(e) => setName(e.target.value)}
                   value={name}
                   className="h-9 w-40"
@@ -183,7 +203,7 @@ export default function Page({ id }: PageProps) {
                       </p>
                     </TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
+                </TooltipProvider> */}
               </div>
             )}
             theme={theme === "dark" ? "dark" : "light"}

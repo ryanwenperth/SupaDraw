@@ -42,7 +42,7 @@ Sentry.init({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Sentry.ErrorBoundary fallback={<NotFound />}>
           <RouterProvider router={router} />
           <Toaster />

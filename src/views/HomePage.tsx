@@ -19,8 +19,8 @@ export default function HomePage() {
     }
   }
   return (
-    <main className="flex h-full w-full flex-col bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 p-2 font-virgil">
-      <footer>
+    <main className="font-Arial flex h-full w-full flex-col bg-white p-2">
+      {/* <footer>
         <div className="flex h-16 w-full items-center justify-center">
           <div className="flex flex-row items-center justify-center align-middle">
             <h1 className="text-2xl text-white">
@@ -31,34 +31,34 @@ export default function HomePage() {
             </h1>
           </div>
         </div>
-      </footer>
+      </footer> */}
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex h-fit w-full flex-col items-center gap-y-8 sm:w-1/2">
-          <h1 className="text-6xl font-black">Draw</h1>
-          <h1 className="text-center text-5xl font-medium">
-            The digital drawing tool that enables you to create, edit, and share
-            your drawings across all your devices.
+          <h1 className="text-black-500 text-center text-5xl font-medium">
+            Autônomo installation work instruction.
           </h1>
           <Button
             isLoading={isLoading}
             loadingText=""
-            className="w-2/3 text-lg font-semibold"
+            className="w-2/3 bg-red-500 text-lg font-semibold"
             onClick={() => action(data ? true : false)}
           >
-            {data ? "View your pages" : "Sign In"}
+            {data ? "View instructions" : "Sign In"}
           </Button>
         </div>
       </div>
       <footer>
         <div className="flex h-16 w-full items-center justify-center">
           <div className="flex flex-row items-center justify-center align-middle">
-            <h1 className="text-lg text-white">
-              Made by{" "}
+            <h1 className="text-lg">
+              Presented by{" "}
               <a
-                href="https://github.com/macintushar"
-                className="font-semibold underline"
+                href="https://www.autonomo.net.au/"
+                //className="font-semibold underline"
               >
-                Macintushar
+                <span className="text-red-500">
+                  <strong>Autônomo</strong>
+                </span>
               </a>
             </h1>
           </div>
