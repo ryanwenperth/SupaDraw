@@ -20,18 +20,6 @@ export default function HomePage() {
   }
   return (
     <main className="font-Arial flex h-full w-full flex-col bg-white p-2">
-      {/* <footer>
-        <div className="flex h-16 w-full items-center justify-center">
-          <div className="flex flex-row items-center justify-center align-middle">
-            <h1 className="text-2xl text-white">
-              ⭐ Star us on{" "}
-              <a href={GITHUB_REPO_URL} className="font-semibold underline">
-                GitHub
-              </a>
-            </h1>
-          </div>
-        </div>
-      </footer> */}
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex h-fit w-full flex-col items-center gap-y-8 sm:w-1/2">
           <h1 className="text-black-500 text-center text-5xl font-medium">
