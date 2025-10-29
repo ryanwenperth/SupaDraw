@@ -82,7 +82,7 @@ export default function ProfileDropdown() {
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        {/* <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <SunMoon className="mr-2 h-4 w-4" />
@@ -108,7 +108,7 @@ export default function ProfileDropdown() {
         <a href={GITHUB_REPO_URL} rel="noreferrer noopener" target="_blank">
           <ProfileItem Icon={Github} text="GitHub" />
         </a>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator /> */}
         <ProfileItem
           Icon={LogOut}
           text="Log Out"

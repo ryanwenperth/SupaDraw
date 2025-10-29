@@ -13,8 +13,9 @@ export default {
       },
       colors: {},
       fontFamily: {
-        virgil: ["Virgil", "sans-serif"],
+        virgil: ["Arial", "sans-serif"],
         quicksand: ["Quicksand", "sans-serif"],
+        //arial: ["Arial", "Helvetica", "sans-serif"],
       },
     },
   },

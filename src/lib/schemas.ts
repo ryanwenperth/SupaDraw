@@ -25,6 +25,7 @@ export const signUpSchema = z.object({
   name: z.string().min(1, "Name must be atleast 1 character"),
   email: emailSchema,
   password: passwordSchema,
+  role: z.enum(["writer", "viewer"]).default("viewer"),
 });
 
 export const updateProfileSchema = z.object({

@@ -25,14 +25,14 @@ function NavButton({ isActive, label, icon: Icon }: NavButtonProps) {
 }
 
 const routes = [
-  {
-    label: "Home",
-    to: "/pages",
-  },
-  {
-    label: "Mermaid",
-    to: "/mermaid",
-  },
+  // {
+  //   label: "Home",
+  //   to: "/pages",
+  // },
+  // {
+  //   label: "Mermaid",
+  //   to: "/mermaid",
+  // },
 ];
 
 export default function Navbar() {
@@ -40,7 +40,9 @@ export default function Navbar() {
     <nav className="grid h-12 w-full grid-cols-3 p-1 px-3">
       <div>
         <Link to="/pages" className="flex w-fit items-center">
-          <h1 className="font-virgil text-3xl font-bold">Draw</h1>
+          <h1 className="font-Arial text-xl font-bold text-red-500">
+            <strong>Autônomo</strong>
+          </h1>
         </Link>
       </div>
       <div className="flex flex-row items-center justify-center space-x-3 font-quicksand">

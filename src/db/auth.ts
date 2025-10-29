@@ -8,13 +8,15 @@ export async function login(email: string, password: string) {
   return { data, error };
 }
 
-export async function signUp(name: string, email: string, password: string) {
+export async function signUp(name: string, email: string, password: string,  
+  role: 'writer' | 'viewer' = 'viewer' ) {
   const { data, error } = await supabase.auth.signUp({
     email: email,
     password: password,
     options: {
       data: {
         name: name,
+        role: role,
       },
     },
   });
@@ -47,4 +49,10 @@ export async function updateUser(name: string, email: string) {
     },
   });
   return { data, error };
+}
+
+export async function isWriter(): Promise<boolean> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) return false;
+  return data.user.user_metadata?.role === "writer";
 }
