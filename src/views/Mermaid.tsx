@@ -5,10 +5,10 @@ import { parseMermaidToExcalidraw } from "@excalidraw/mermaid-to-excalidraw";
 import {
   convertToExcalidrawElements,
   Excalidraw,
-} from "@excalidraw/excalidraw";
+} from "excalidraw-monorepo";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import { ExcalidrawImperativeAPI } from "excalidraw-monorepo/types";
 import { useTheme } from "@/components/theme-provider";
 import TitleBar from "@/components/TitleBar";
 import { useNavigate } from "@tanstack/react-router";

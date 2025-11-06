@@ -15,7 +15,9 @@ import NotFound from "./views/NotFound";
 
 const router = createRouter({ routeTree });
 
-import "@excalidraw/excalidraw/index.css";
+
+import "C:/Users/Ryan.Wen/ReDraw/ReDraw/packages/excalidraw/dist/prod/index.css";
+//import "excalidraw-monorepo/index.css";
 
 declare module "@tanstack/react-router" {
   interface Register {

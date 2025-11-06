@@ -7,7 +7,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "excalidraw-monorepo": ["../../ReDraw/ReDraw/packages/excalidraw"],
+      "excalidraw-monorepo/*": ["../../ReDraw/ReDraw/packages/excalidraw/*"]
     }
   }
 }

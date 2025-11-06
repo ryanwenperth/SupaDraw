@@ -117,7 +117,7 @@ export default function Profile() {
                           <Input
                             id="email"
                             type="email"
-                            placeholder="mac@justapps.com"
+                            placeholder="someone@autonomo.net.au"
                             {...field}
                           />
                         </FormControl>

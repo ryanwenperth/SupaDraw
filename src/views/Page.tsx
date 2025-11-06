@@ -10,12 +10,12 @@ import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Excalidraw, WelcomeScreen } from "@excalidraw/excalidraw";
-import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
+import { Excalidraw, WelcomeScreen } from "excalidraw-monorepo";
+import { NonDeletedExcalidrawElement } from "excalidraw-monorepo/element/types";
 import {
   ExcalidrawImperativeAPI,
   BinaryFiles,
-} from "@excalidraw/excalidraw/types";
+} from "excalidraw-monorepo/types";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 import { getDrawData, setDrawData } from "@/db/draw";
@@ -176,7 +176,7 @@ export default function Page({ id }: PageProps) {
                   value={name}
                   className="h-9 w-40"
                   placeholder="Page Title"
-                />
+                /> */}
                 <Button
                   variant="secondary"
                   onClick={setSceneData}
@@ -185,7 +185,7 @@ export default function Page({ id }: PageProps) {
                 >
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
-                <TooltipProvider>
+                {/* <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -204,6 +204,8 @@ export default function Page({ id }: PageProps) {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider> */}
+
+
               </div>
             )}
             theme={theme === "dark" ? "dark" : "light"}

@@ -255,7 +255,7 @@ export default function Pages() {
 
                     <h1 className="font-medium">
                       Last updated on:{" "}
-                      {dayjs(page.updated_at).format("MMM DD, YYYY")}
+                      {dayjs(page.updated_at).format("hh:mm A, MMM DD, YYYY")}
                     </h1>
                   </CardContent>
                 </div>

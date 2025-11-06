@@ -1,5 +1,6 @@
-import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
-import { BinaryFiles } from "@excalidraw/excalidraw/types";
+import { NonDeletedExcalidrawElement } from "excalidraw-monorepo/element/types";
+import { BinaryFiles } from "excalidraw-monorepo/types";
+
 import { supabase } from "./supabase";
 import { AuthError, PostgrestError } from "@supabase/supabase-js";
 

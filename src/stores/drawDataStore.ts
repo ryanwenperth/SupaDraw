@@ -1,5 +1,5 @@
-import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
-import { BinaryFiles } from "@excalidraw/excalidraw/types";
+import { NonDeletedExcalidrawElement } from "excalidraw-monorepo/element/types";
+import { BinaryFiles } from "excalidraw-monorepo/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

@@ -7,10 +7,13 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    // Allows access from CodeSandbox (csb.app) preview URLs
+    host: true, // Expose to all network interfaces
+    port: 5173,
+    strictPort: true,
+    // Allows access from CodeSandbox (csb.app) preview URLs and local development
     allowedHosts: [
-      "lf42rx-5173.csb.app", // You can explicitly list the specific host
-      "*.csb.app", // OR use a wildcard for all CodeSandbox previews
+      "lf42rx-5173.csb.app",
+      "*.csb.app",
       "localhost",
       "127.0.0.1",
     ],
@@ -22,6 +25,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "excalidraw-monorepo": path.resolve(__dirname, "../../ReDraw/ReDraw/packages/excalidraw"),
+      // Force excalidraw to use the same React instance as the main app
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
   },
 });
