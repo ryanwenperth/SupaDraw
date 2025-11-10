@@ -147,11 +147,11 @@ export async function downloadFileFromStorage(
   storagePath: string  
 ): Promise<{ dataURL: string | null; error: Error | null }> {  
   try {  
-    const { data, error } = await supabase.storage  
-      .from('drawing-files')  
-      .download(storagePath);  
-  
-    if (error) {  
+    const { data, error } = await supabase.storage    
+      .from('drawing-files')    
+      .download(storagePath);    
+    
+    if (error) {    
       return { dataURL: null, error };  
     }  
   
@@ -175,13 +175,13 @@ export async function downloadFileFromStorage(
   }  
 }
 
-export async function getDrawData(id: string): Promise<DBResponse> {
-  const { data, error } = await supabase
-    .from(DB_NAME)
-    .select()
-    .eq("page_id", id);
-
-  return { data, error };
+export async function getDrawData(id: string): Promise<DBResponse> {  
+  const { data, error } = await supabase  
+    .from(DB_NAME)  
+    .select('page_id, user_id, name, page_elements, updated_at')  
+    .eq("page_id", id);  
+  
+  return { data, error };  
 }
 
 export async function createNewPage(

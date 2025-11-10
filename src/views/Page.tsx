@@ -59,63 +59,52 @@ export default function Page({ id }: PageProps) {
   });
 
   const { mutate } = mutation;
-
-  // async function updateScene() {
-  //   if (data?.data && excalidrawAPI) {
-  //     const pageData = data.data[0].page_elements;
-  //     const elements = pageData.elements || [];
-  //     const files = pageData.files || {};
-
-  //     excalidrawAPI.updateScene({
-  //       elements: elements,
-  //       appState: { theme: theme },
-  //     });
-
-  //     // Update files if they exist
-  //     if (Object.keys(files).length > 0) {
-  //       excalidrawAPI.addFiles(Object.values(files));
-  //     }
-
-  //     setName(data.data[0].name);
-  //   }
-  //   if (data?.error) {
-  //     toast("An error occurred", { description: data.error.message });
-  //   }
-  // }
-
    
   async function updateScene() {  
     if (data?.data && excalidrawAPI) {  
       const pageData = data.data[0].page_elements;  
       const elements = pageData.elements || [];  
       const fileMetadata = pageData.files || {};  
+      const ownerId = data.data[0].user_id;  // Get owner ID from page data  
         
       // First, update scene with elements (without files)  
       excalidrawAPI.updateScene({  
         elements: elements,  
         appState: { theme: theme },  
       });  
-        
-      // Then, load files from storage  
+      console.log("ownerId is : ",`${ownerId}/${id}`);
+      // Then, load files from storage using OWNER'S ID  
       if (Object.keys(fileMetadata).length > 0) {  
         const loadedFiles: BinaryFiles = {};  
           
         for (const [fileId, metadata] of Object.entries(fileMetadata)) {  
-          const { dataURL, error } = await downloadFileFromStorage(metadata.storagePath);  
+          try {  
             
-          if (error) {  
-            console.error(`Failed to load file ${fileId}:`, error);  
-            continue;  
-          }  
-            
-          if (dataURL) {  
+            // Use OWNER'S ID to construct path  
+            const storagePath = `${ownerId}/${id}/${fileId}`;  
+            console.log("storagePath is : ",storagePath);
+              
+            // Download from storage  
+            const { data: blob, error } = await supabase.storage  
+              .from('drawing-files')  
+              .download(storagePath);  
+              
+            if (error) throw error;  
+              
+            // Convert blob to data URL  
+            const dataURL = await new Promise<string>((resolve) => {  
+              const reader = new FileReader();  
+              reader.onloadend = () => resolve(reader.result as string);  
+              reader.readAsDataURL(blob);  
+            });  
+              
+            // Add to loaded files  
             loadedFiles[fileId] = {  
-              id: fileId,  
+              ...metadata,  
               dataURL: dataURL,  
-              mimeType: metadata.mimeType,  
-              created: metadata.created,  
-              lastRetrieved: Date.now()  
             };  
+          } catch (error) {  
+            console.error(`Failed to load file ${fileId}:`, error);  
           }  
         }  
           
@@ -167,88 +156,84 @@ export default function Page({ id }: PageProps) {
 
   
   const setSceneData = useCallback(async () => {  
-    if (excalidrawAPI) {  
-      const scene = excalidrawAPI.getSceneElements();  
-      const files = excalidrawAPI.getFiles();  
-      const updatedAt = new Date().toISOString();  
-    
-      const existingData = drawDataStore.getState().getPageData(id);  
-    
-      if (JSON.stringify(existingData?.elements) !== JSON.stringify(scene) ||  
-          JSON.stringify(existingData?.files) !== JSON.stringify(files)) {  
-        setIsSaving(true);  
-    
-        try {  
-          // Get current user ID  
-          const { data: { user } } = await supabase.auth.getUser();  
-          if (!user) {  
-            throw new Error("User not authenticated");  
-          }  
-    
-          // Process files: upload new ones to storage  
-          const fileMetadata: Record<string, FileMetadata> = {};  
-          const existingFiles = existingData?.files || {};  
-    
-          for (const [fileId, file] of Object.entries(files)) {  
-            // Check if file already exists in storage  
-            if (existingFiles[fileId]?.storagePath) {  
-              // File already uploaded, keep existing metadata  
-              fileMetadata[fileId] = existingFiles[fileId];  
-            } else {  
-              // New file, upload to storage  
-              const { storagePath, error } = await uploadFileToStorage(  
-                user.id,  
-                id,  
-                fileId,  
-                file.dataURL  
-              );  
-    
-              if (error) {  
-                console.error(`Failed to upload file ${fileId}:`, error);  
-                toast("Failed to upload image", {  
-                  description: error.message  
-                });  
-                continue;  
-              }  
-    
-              if (storagePath) {  
-                fileMetadata[fileId] = {  
-                  id: fileId,  
-                  created: file.created || Date.now(),  
-                  mimeType: file.mimeType || 'image/png',  
-                  storagePath: storagePath,  
-                  lastRetrieved: Date.now()  
-                };  
-              }  
+  if (excalidrawAPI) {  
+    const scene = excalidrawAPI.getSceneElements();  
+    const files = excalidrawAPI.getFiles();  
+    const updatedAt = new Date().toISOString();  
+      
+    const existingData = drawDataStore.getState().getPageData(id);  
+      
+    if (JSON.stringify(existingData?.elements) !== JSON.stringify(scene) ||  
+        JSON.stringify(existingData?.files) !== JSON.stringify(files)) {  
+      setIsSaving(true);  
+        
+      try {  
+        const fileMetadata: Record<string, any> = {};  
+        const ownerId = data?.data?.[0]?.user_id; // Get owner ID from page data  
+          
+        // Only upload NEW files (not already in storage)  
+        for (const [fileId, file] of Object.entries(files)) {  
+          const storagePath = `${ownerId}/${id}/${fileId}`;  
+            
+          // Check if file already exists in metadata  
+          if (existingData?.files?.[fileId]?.storagePath === storagePath) {  
+            // File already uploaded, reuse existing metadata  
+            fileMetadata[fileId] = existingData.files[fileId];  
+          } else {  
+            // New file, upload to storage  
+            const dataURL = file.dataURL;  
+            const base64Data = dataURL.split(',')[1];  
+            const blob = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));  
+              
+            const { error: uploadError } = await supabase.storage  
+              .from('drawing-files')  
+              .upload(storagePath, blob, {  
+                contentType: file.mimeType,  
+                upsert: false // Don't overwrite existing files  
+              });  
+              
+            if (uploadError) {  
+              console.error('Upload error:', uploadError);  
+              throw uploadError;  
             }  
+              
+            fileMetadata[fileId] = {  
+              id: fileId,  
+              created: file.created,  
+              mimeType: file.mimeType,  
+              storagePath: storagePath,  
+              lastRetrieved: file.lastRetrieved  
+            };  
           }  
-    
-          // Save locally first (with metadata, not data URLs)  
-          drawDataStore.getState().setPageData(id, scene, updatedAt, name, fileMetadata);  
-    
-          // Then push to API  
-          mutate(  
-            {  
-              elements: scene as NonDeletedExcalidrawElement[],  
-              name,  
-              files: fileMetadata,  
-            },  
-            {  
-              onSettled() {  
-                setIsSaving(false);  
-              },  
-            },  
-          );  
-        } catch (error) {  
-          console.error("Save error:", error);  
-          toast("Failed to save", {  
-            description: error instanceof Error ? error.message : "Unknown error"  
-          });  
-          setIsSaving(false);  
         }  
+          
+        // Save locally first  
+        drawDataStore.getState().setPageData(id, scene, updatedAt, name, fileMetadata);  
+          
+        // Then push to API  
+        mutate(  
+          {  
+            elements: scene as NonDeletedExcalidrawElement[],  
+            name,  
+            files: fileMetadata,  
+          },  
+          {  
+            onSettled() {  
+              setIsSaving(false);  
+            },  
+          },  
+        );  
+      } catch (error) {  
+        console.error("Save error:", error);  
+        toast("Failed to save", {  
+          description: error instanceof Error ? error.message : "Unknown error"  
+        });  
+        setIsSaving(false);  
       }  
     }  
-  }, [excalidrawAPI, id, name, mutate]);
+  }  
+}, [excalidrawAPI, id, name, mutate, data]);
+
 
   useEffect(() => {
     if (!isLoading && data?.data && excalidrawAPI) {
