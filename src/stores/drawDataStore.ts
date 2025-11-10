@@ -2,14 +2,25 @@ import { NonDeletedExcalidrawElement } from "excalidraw-monorepo/element/types";
 import { BinaryFiles } from "excalidraw-monorepo/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { FileMetadata } from "@/db/draw";  
 
-export type DrawData = {
-  [page_id: string]: {
-    elements: readonly NonDeletedExcalidrawElement[];
-    updatedAt: string;
-    name: string;
-    files?: BinaryFiles;
-  };
+// export type DrawData = {
+//   [page_id: string]: {
+//     elements: readonly NonDeletedExcalidrawElement[];
+//     updatedAt: string;
+//     name: string;
+//     files?: BinaryFiles;
+//   };
+// };
+
+  
+export type DrawData = {  
+  [page_id: string]: {  
+    elements: readonly NonDeletedExcalidrawElement[];  
+    updatedAt: string;  
+    name: string;  
+    files?: Record<string, FileMetadata>; // Changed from BinaryFiles  
+  };  
 };
 
 type DrawDataStore = {

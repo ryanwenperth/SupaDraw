@@ -99,6 +99,82 @@ export async function getPages(
   return { data: allPages, error: null };
 }
 
+export async function uploadFileToStorage(  
+  userId: string,  
+  pageId: string,  
+  fileId: string,  
+  dataURL: string  
+): Promise<{ storagePath: string | null; error: Error | null }> {  
+  try {  
+    // Extract base64 data and mime type from data URL  
+    const matches = dataURL.match(/^data:(.+);base64,(.+)$/);  
+    if (!matches) {  
+      return { storagePath: null, error: new Error("Invalid data URL format") };  
+    }  
+  
+    const mimeType = matches[1];  
+    const base64Data = matches[2];  
+      
+    // Convert base64 to blob  
+    const byteCharacters = atob(base64Data);  
+    const byteNumbers = new Array(byteCharacters.length);  
+    for (let i = 0; i < byteCharacters.length; i++) {  
+      byteNumbers[i] = byteCharacters.charCodeAt(i);  
+    }  
+    const byteArray = new Uint8Array(byteNumbers);  
+    const blob = new Blob([byteArray], { type: mimeType });  
+  
+    // Upload to storage with path: userId/pageId/fileId  
+    const storagePath = `${userId}/${pageId}/${fileId}`;  
+    const { error: uploadError } = await supabase.storage  
+      .from('drawing-files')  
+      .upload(storagePath, blob, {  
+        contentType: mimeType,  
+        upsert: true // Overwrite if exists  
+      });  
+  
+    if (uploadError) {  
+      return { storagePath: null, error: uploadError };  
+    }  
+  
+    return { storagePath, error: null };  
+  } catch (error) {  
+    return { storagePath: null, error: error as Error };  
+  }  
+}
+
+export async function downloadFileFromStorage(  
+  storagePath: string  
+): Promise<{ dataURL: string | null; error: Error | null }> {  
+  try {  
+    const { data, error } = await supabase.storage  
+      .from('drawing-files')  
+      .download(storagePath);  
+  
+    if (error) {  
+      return { dataURL: null, error };  
+    }  
+  
+    if (!data) {  
+      return { dataURL: null, error: new Error("No data returned") };  
+    }  
+  
+    // Convert blob to data URL  
+    return new Promise((resolve) => {  
+      const reader = new FileReader();  
+      reader.onloadend = () => {  
+        resolve({ dataURL: reader.result as string, error: null });  
+      };  
+      reader.onerror = () => {  
+        resolve({ dataURL: null, error: new Error("Failed to read blob") });  
+      };  
+      reader.readAsDataURL(data);  
+    });  
+  } catch (error) {  
+    return { dataURL: null, error: error as Error };  
+  }  
+}
+
 export async function getDrawData(id: string): Promise<DBResponse> {
   const { data, error } = await supabase
     .from(DB_NAME)
@@ -127,28 +203,61 @@ export async function createNewPage(
   return { data: null, error: profileError };
 }
 
-export async function setDrawData(
-  id: string,
-  elements: readonly NonDeletedExcalidrawElement[],
-  name: string,
-  files?: BinaryFiles,
-): Promise<DBResponse> {
-  const updateTime = new Date().toISOString();
-  const excalidrawData: ExcalidrawData = {
-    elements,
-    files: files || {},
-  };
-  const { data, error } = await supabase
-    .from(DB_NAME)
-    .update({
-      name: name,
-      page_elements: excalidrawData,
-      updated_at: updateTime,
-    })
-    .eq("page_id", id)
-    .select();
+// export async function setDrawData(
+//   id: string,
+//   elements: readonly NonDeletedExcalidrawElement[],
+//   name: string,
+//   files?: BinaryFiles,
+// ): Promise<DBResponse> {
+//   const updateTime = new Date().toISOString();
+//   const excalidrawData: ExcalidrawData = {
+//     elements,
+//     files: files || {},
+//   };
+//   const { data, error } = await supabase
+//     .from(DB_NAME)
+//     .update({
+//       name: name,
+//       page_elements: excalidrawData,
+//       updated_at: updateTime,
+//     })
+//     .eq("page_id", id)
+//     .select();
 
-  return { data, error };
+//   return { data, error };
+// }
+
+
+export type FileMetadata = {  
+  id: string;  
+  created: number;  
+  mimeType: string;  
+  storagePath: string;  
+  lastRetrieved: number;  
+};  
+  
+export async function setDrawData(  
+  id: string,  
+  elements: readonly NonDeletedExcalidrawElement[],  
+  name: string,  
+  files?: Record<string, FileMetadata>,  
+): Promise<DBResponse> {  
+  const updateTime = new Date().toISOString();  
+  const excalidrawData = {   
+    elements,  
+    files: files || {}  
+  };  
+  const { data, error } = await supabase  
+    .from(DB_NAME)  
+    .update({   
+      name: name,   
+      page_elements: excalidrawData,   
+      updated_at: updateTime   
+    })  
+    .eq("page_id", id)  
+    .select();  
+  
+  return { data, error };  
 }
 
 export async function deletePage(id: string): Promise<DBResponse> {
